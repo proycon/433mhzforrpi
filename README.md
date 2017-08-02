@@ -1,74 +1,90 @@
 433mhzforrpi
-============
+==============
 
 Software for raspberry pi to control 433 mhz modules including old and new kaku (klik aan klik uit) modules.
 
 
-Stappenplan
+Dependencies
+-------------
 
-Stap 1 - Sluit alles aan
+Ensure you have a sane build environent and the wiringPi library:
 
-    VCC van de transmitter op pin 4 van je Pi (VCC 5V)
-    GND van de transmitter op pin 6 van je Pi (GND)
-    ATAD of DATA van de transmitter op pin 8 van je Pi (TX)
+Raspbian:
 
+```
+$ sudo apt-get install wiringpi
+```
 
-Stap 2 - Installeer WiringPi
+To compile wiringpi from scratch:
 
-WiringPi is een prachtige library die veel arduino functionaliteit naar de
-Raspberry Pi port. Omdat ik de draadloze library van een Arduino naar de Pi
-heb geport, heb je deze library dus ook nodig.
+```
+$ git clone git://git.drogon.net/wiringPi
+$ cd wiringPi
+$ git pull origin
+$ cd wiringPi
+$ ./build
+$ cd ..
+```
 
-Als je git nog niet hebt, installeer dat dan via:
+Compilation
+-------------
 
-code:
+Just run make:
 
-    sudo apt-get update
-    sudo apt-get upgrade
-    sudo apt-get install git-core
-
-
-Daarna gaan we WiringPi downloaden en builden:
-
-code:
-
-    git clone git://git.drogon.net/wiringPi
-    cd wiringPi
-    git pull origin
-    cd wiringPi
-    ./build
-    cd ..
+```
+$ make
+$ sudo make install
+```
 
 
-Als alles goed gaat, heb je nu WiringPi geinstalleerd en kun je mijn code
-downloaden!
-
-Stap 3 - Installeer het tooltje
-
-Voer deze code uit:
-
-code:
-    ./install.sh
+Usage
+-----------
 
 
-Nu kun je het zojuist gecompileerde tooltje uitvoeren om je lampen te
-schakelen! Bijvoorbeeld:
+First start the daemon, with the gpio PIN to which your transmitter is connected.
+Pins are numbered using the wiringPi pin numbering scheme, see https://projects.drogon.net/raspberry-pi/wiringpi/pins/:
 
-code:
+Note you'll need sudo or add your user to the ``gpio`` group to be able to access the GPIO pins:
 
-   sudo ./action 18 C on
+```
+$ 433mhzdaemon 18
+```
 
-of voor de nieuwe kaku modules:
+Run the tool as follows:
 
-    sudo ./kaku 123 1 on
-    sudo ./kaku 123 1 dim 4
+```
+$ 433mhztool $protocol $group $unit of/off
+```
 
-Voor de andere merken, voer sudo ./merk uit voor het juiste gebruik. (sudo is nodig omdat de GPIO pin low-level zijn)
+Protocol is one of:
+* oldkaku -- Klik-aan-Klik-Uit (old style)
+* newkaku -- Klik-aan-Klik-Uit (new style)
+* elro -- Elro Flamingo and others, address configured with DIP switches
+* action
 
-Dit kun je voor alle gebruikers instellen door het sticky bit aan te zetten:
-    sudo chmod +s merk
 
-Optionele stap 4 - Tweaken
+Examples:
+
+```
+433mhztool action 18 C on
+```
+
+Klik-aan-klik-Uit old style:
+
+```
+433mhztool oldkaku M 10 on
+```
+
+Klik-aan-klik-Uit new style:
+
+```
+433mhztool newkaku 123 1 on
+```
+
+To pair a new Kaku switch, send the on signal right after plugging it in.
+
+Original Notes
+===============
 
 Bereik optimaliseren
 Als je moeite hebt met het schakelen, is waarschijnlijk het bereik te klein.
