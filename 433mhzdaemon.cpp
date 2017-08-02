@@ -29,8 +29,7 @@ int send433mhz(deviceType devicetype, int address, int device, deviceCommand com
                 if (command != dim) {
                     printf ("device=newkaku address1=%d address2=%d command=%s\n", address, device, command==on?"on":"off");
                     transmitter.sendUnit(device, command == on);
-                }
-                else {
+                } else {
                     printf ("device=newkaku address1=%d address2=%d command=dim value=\n", address, device, value);
                     transmitter.sendDim(device, value);
                 }
