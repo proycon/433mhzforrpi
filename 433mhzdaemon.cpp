@@ -18,30 +18,23 @@
 
 using namespace std;
 
-int send433mhz(deviceType devicetype, int address, int device, deviceCommand command, int value)
-{
-    switch (devicetype)
-    {
+int send433mhz(deviceType devicetype, int address, int device, deviceCommand command, int value) {
+    switch (devicetype) {
         case newkaku:
         {
-        NewRemoteTransmitter transmitter(address, PIN_OUT, 260, 3);
-        if (device == 0)
-	{
-            transmitter.sendGroup(command == on);
-        }
-        else
-        {
-            if (command != dim)
-            {
-                printf ("device=newkaku address1=%d address2=%d command=%s\n", address, device, command==on?"on":"off");
-                transmitter.sendUnit(device, command == on);
+            NewRemoteTransmitter transmitter(address, PIN_OUT, 260, 3);
+            if (device == 0) {
+                transmitter.sendGroup(command == on);
+            } else {
+                if (command != dim) {
+                    printf ("device=newkaku address1=%d address2=%d command=%s\n", address, device, command==on?"on":"off");
+                    transmitter.sendUnit(device, command == on);
+                }
+                else {
+                    printf ("device=newkaku address1=%d address2=%d command=dim value=\n", address, device, value);
+                    transmitter.sendDim(device, value);
+                }
             }
-            else
-            {
-                printf ("device=newkaku address1=%d address2=%d command=dim value=\n", address, device, value);
-                transmitter.sendDim(device, value);
-            }
-        }
         }
         break;
         case oldkaku:
@@ -58,14 +51,20 @@ int send433mhz(deviceType devicetype, int address, int device, deviceCommand com
             actionSwitch.sendSignal(address, device, command == on);
         }
         break;
+        case elro:
+        {
+            printf ("device=elro address1=%d address2=%d command=%s\n", address, device, command==on?"on":"off");
+            ElroSwitch elroSwitch(PIN_OUT);
+            elroSwitch.sendSignal(address, device, command == on);
+        }
+        break;
     }
 }
 
 
 
 
-int main()
-{
+int main() {
         mqd_t mqd;
         struct mq_attr attr;
         int ret;
@@ -73,11 +72,17 @@ int main()
         ssize_t msg_len;
 
         // load wiringPi
-        if(wiringPiSetup() == -1)
-        {
-                printf("WiringPi setup failed. Maybe you haven't installed it yet?");
+        if(wiringPiSetup() == -1) {
+                printf("WiringPi setup failed. Maybe you haven't installed it yet? (apt-get install wiringpi)");
                 exit(1);
         }
+
+        if (argc != 1) {
+            printf("Syntax: 433mhzdaemon PIN_OUT");
+            printf("PIN_OUT using wiringPi pin numbering scheme (15 = TxD / BCM GPIO 14, see https://projects.drogon.net/raspberry-pi/wiringpi/pins/)");
+            exit(1)
+        }
+        const int PIN_OUT = atoi(argv[1]);
 
         // setup pin and make it low (otherwise transmitter will block other 433 mhz transmitters like remotes)
         pinMode(PIN_OUT, OUTPUT);
@@ -91,8 +96,7 @@ int main()
 
         /* Create message queue */
         mqd = mq_open(MQ_NAME, O_RDONLY | O_CREAT, MQ_MODE, &attr);
-        if( mqd != (mqd_t)-1 )
-        {
+        if( mqd != (mqd_t)-1 ) {
                 printf(" Message Queue Opened\n");
 
                 printf(" Receiving message .... \n");
@@ -124,9 +128,7 @@ int main()
                         perror(" Message queue unlink failed");
                 else
                         printf(" Message Queue unlinked\n");
-        }
-        else
-        {
+        } else {
                 perror(" Message queue open failed ");
         }
 
