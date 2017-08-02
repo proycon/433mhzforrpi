@@ -39,11 +39,11 @@ int main(int argc, char **argv) {
         	std::cout << "usage: " << argv[0] << " address device state level" << std::endl;
         	std::cout << "example: " << argv[0] << " for oldkaku : A 2 on" << std::endl;
         	std::cout << "example: " << argv[0] << " for newkaku : 123 10 dim 5" << std::endl;
-        } else if ((protocol.find("action") != std::string::npos) ||(protocol.find("action") != std::string::npos)) {
+        } else if ((protocol.find("action") != std::string::npos) || (protocol.find("elro") != std::string::npos)) {
 	        std::cout << "usage: " << argv[0] << " dipchannel socket state" << std::endl;
         	std::cout << "example: " << argv[0] << " 18 B on" << std::endl;
         } else {
-            printf ("Unknown programname '%s', use kaku or action\n",argv[0]);
+            printf ("Unknown protocol '%s', use kaku, newkaku, oldkaku, elro or action\n",argv[0]);
             exit(2);
         }
         exit(1);
