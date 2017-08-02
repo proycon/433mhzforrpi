@@ -11,12 +11,20 @@
 #include <semaphore.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <mqueue.h>
 #include "RemoteSwitch.cpp"
 #include "NewRemoteTransmitter.cpp"
-#include "433mhzdaemon.h"
+#include "433send.h"
 
 using namespace std;
+
+void usage() {
+    std::cerr << "Syntax: 433send $GPIO_PIN_OUT $protocol $address $unit on/off" << std::endl;
+    std::cerr << "PIN_OUT using wiringPi pin numbering scheme (15 = TxD / BCM GPIO 14, see https://projects.drogon.net/raspberry-pi/wiringpi/pins/)";
+    std::cerr << "Protocol: kaku (oldkaku/newkaku), elro/action" << std::endl;
+    std::cerr << "example: 433send 8 oldkaku 2 on" << std::endl;
+    std::cerr << "example: 433send 8 newkaku 123 10 dim 5" << std::endl;
+    exit(3);
+}
 
 int send433mhz(const unsigned short PIN_OUT, deviceType devicetype, int address, int device, deviceCommand command, int value) {
     switch (devicetype) {
@@ -79,7 +87,6 @@ int main(int argc, char **argv) {
 
         if (argc != 2) {
             printf("Syntax: 433mhzdaemon PIN_OUT");
-            printf("PIN_OUT using wiringPi pin numbering scheme (15 = TxD / BCM GPIO 14, see https://projects.drogon.net/raspberry-pi/wiringpi/pins/)");
             exit(1);
         }
         const unsigned short PIN_OUT = (unsigned short) atoi(argv[1]);
@@ -88,50 +95,65 @@ int main(int argc, char **argv) {
         pinMode(PIN_OUT, OUTPUT);
         digitalWrite(PIN_OUT, LOW);
 
-         /* Form the queue attributes */
-        attr.mq_flags = 0; /* i.e mq_send will be block if message queue is full */
-        attr.mq_maxmsg = MQ_MAX_NUM_OF_MESSAGES;
-        attr.mq_msgsize = MQ_MESSAGE_MAX_LENGTH;
-        attr.mq_curmsgs = 0; /* mq_curmsgs is dont care */
+    if (argc < 1) usage();
+    string protocol = argv[1];
 
-        /* Create message queue */
-        mqd = mq_open(MQ_NAME, O_RDONLY | O_CREAT, MQ_MODE, &attr);
-        if( mqd != (mqd_t)-1 ) {
-                printf(" Message Queue Opened\n");
 
-                printf(" Receiving message .... \n");
-                while (1)
-                {
-                    msg_len = mq_receive(mqd, msg, MQ_MESSAGE_MAX_LENGTH, NULL);
-                    if(msg_len < 0)
-                    {
-                        printf(" Failed");
-//                        break;
-                    }
-                    else
-                    {
-                        msg[MQ_MESSAGE_MAX_LENGTH-1] = '\0';
-                        printf(" Successfully received %d bytes, ", (int)msg_len);
-                        if (msg_len > 4) send433mhz(PIN_OUT, (deviceType) msg[0], msg[1], msg[2], (deviceCommand)  msg[3], msg[4]);
-                    }
-                }
+    if( argc < 6 ) { // not enough arguments
+        usage();
+        exit(1);
+    }
 
-                /* Close the message queue */
-                ret = mq_close(mqd);
-                if(ret)
-                        perror(" Message queue close failed");
-                else
-                        printf(" Message Queue Closed\n");
-
-                ret = mq_unlink(MQ_NAME);
-                if(ret)
-                        perror(" Message queue unlink failed");
-                else
-                        printf(" Message Queue unlinked\n");
+    if (protocol.find("kaku") != std::string::npos) {
+        if (atol(argv[2])) {
+            protocol = "newkaku";
         } else {
-                perror(" Message queue open failed ");
+            protocol = "oldkaku";
         }
+    } else if (protocol.find("newkaku") != std::string::npos) {
+        msg[0] = (char) newkaku;
+        msg[1] = (char) atol(argv[3]);
+        msg[2] = (char) atol(argv[4]);
+    } else if (protocol.find("oldkaku") != std::string::npos) {
+        msg[0] = (char) oldkaku;
+        msg[1] = (char) (argv[3])[0];
+        msg[2] = (char) atol(argv[4]);
+    } else if (protocol.find("action") != std::string::npos) {
+        // msg[0] = devicetype
+        msg[0] = (char) action;
+        msg[1] = atol(argv[3]);
+        msg[2] = *argv[4];
+    } else if (protocol.find("elro") != std::string::npos) {
+        // msg[0] = devicetype
+        msg[0] = (char) elro;
+        msg[1] = atol(argv[3]);
+        msg[2] = *argv[4];
+    }
 
-        return 0;
+    string statestr = argv[5];
+    msg[3] = 0;
+
+    if( statestr.compare("on") == 0 ) {
+        // msg[3] = state
+        msg[3]  = (char) on;
+    } else if( statestr.compare("off") == 0 ) {
+        msg[3] = (char) off;
+    } else if( statestr.compare("dim") == 0 ) {
+        msg[3] = (char) dim;
+       // msg[4] = value
+        msg[4] = (char) atol(argv[6]);
+    } else {
+        printf ("Only on, off, or dim state are valid");
+        exit(3);
+    }
+
+    if (msg_len > 4) {
+        send433mhz(PIN_OUT, (deviceType) msg[0], msg[1], msg[2], (deviceCommand)  msg[3], msg[4]);
+    } else {
+        std::err << "msg_len too short: " << msg_len << std::endl;
+    }
+
+
+    return 0;
 }
 

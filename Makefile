@@ -1,10 +1,7 @@
-all: 433mhzdaemon 433mhztool
+all: 433send
 
-433mhzdaemon: 433mhzdaemon.cpp
+433send: 43send.cpp
 	g++ -o 433mhzdaemon 433mhzdaemon.cpp -I/usr/local/include  -L/usr/local/lib -lwiringPi -lrt
 
-433mhztool: 433mhztool.cpp
-	g++ -o 433mhztool 433mhztool.cpp -lrt
-
-install: 433mhzdaemon 433mhztool
-	cp 433mhzdaemon 433mhztool /usr/bin/
+install: 433send
+	cp 433send /usr/bin/

@@ -1,8 +1,7 @@
 433mhzforrpi
 ==============
 
-Software for raspberry pi to control 433 mhz modules including old and new kaku (klik aan klik uit) modules.
-
+Software for raspberry pi to control 433 mhz modules including old and new kaku (klik aan klik uit, Click-on-Click-off) modules.
 
 Dependencies
 -------------
@@ -41,20 +40,14 @@ Usage
 -----------
 
 
-First start the daemon, with the gpio PIN to which your transmitter is connected.
-Pins are numbered using the wiringPi pin numbering scheme, see https://projects.drogon.net/raspberry-pi/wiringpi/pins/:
-
-Note you'll need sudo or add your user to the ``gpio`` group to be able to access the GPIO pins:
-
-```
-$ 433mhzdaemon 18
-```
-
 Run the tool as follows:
 
 ```
-$ 433mhztool $protocol $group $unit of/off
+$ 433send GPIO_PIN $protocol $group $unit of/off
 ```
+
+Pins are numbered using the wiringPi pin numbering scheme, see https://projects.drogon.net/raspberry-pi/wiringpi/pins/:
+Note you'll need sudo or add your user to the ``gpio`` group to be able to access the GPIO pins:
 
 Protocol is one of:
 * oldkaku -- Klik-aan-Klik-Uit (old style)
@@ -63,22 +56,23 @@ Protocol is one of:
 * action
 
 
-Examples:
-
-```
-433mhztool action 18 C on
-```
 
 Klik-aan-klik-Uit old style:
 
 ```
-433mhztool oldkaku M 10 on
+$ 433send 8 oldkaku M 10 on
 ```
 
 Klik-aan-klik-Uit new style:
 
 ```
-433mhztool newkaku 123 1 on
+$ 433send 8 newkaku 123 1 on
+```
+
+Elro Flamingo:
+
+```
+$ 433send 8 elro A 2 on
 ```
 
 To pair a new Kaku switch, send the on signal right after plugging it in.
