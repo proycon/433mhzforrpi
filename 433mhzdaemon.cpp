@@ -78,11 +78,11 @@ int main()
                 printf("WiringPi setup failed. Maybe you haven't installed it yet?");
                 exit(1);
         }
-                            
+
         // setup pin and make it low (otherwise transmitter will block other 433 mhz transmitters like remotes)
         pinMode(PIN_OUT, OUTPUT);
         digitalWrite(PIN_OUT, LOW);
- 
+
          /* Form the queue attributes */
         attr.mq_flags = 0; /* i.e mq_send will be block if message queue is full */
         attr.mq_maxmsg = MQ_MAX_NUM_OF_MESSAGES;
@@ -111,14 +111,14 @@ int main()
                         if (msg_len > 4) send433mhz((deviceType) msg[0], msg[1], msg[2], (deviceCommand)  msg[3], msg[4]);
                     }
                 }
-                
+
                 /* Close the message queue */
                 ret = mq_close(mqd);
                 if(ret)
                         perror(" Message queue close failed");
                 else
                         printf(" Message Queue Closed\n");
-        
+
                 ret = mq_unlink(MQ_NAME);
                 if(ret)
                         perror(" Message queue unlink failed");

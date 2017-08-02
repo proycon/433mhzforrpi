@@ -1,7 +1,7 @@
 433mhzforrpi
 ============
 
-Software for raspberry pi to control 433 mhz modules including old and new kaku (klik aan klik uit) modules
+Software for raspberry pi to control 433 mhz modules including old and new kaku (klik aan klik uit) modules.
 
 
 Stappenplan
@@ -48,35 +48,7 @@ Stap 3 - Installeer het tooltje
 Voer deze code uit:
 
 code:
-
-    git clone git://git@github.com:jeroensteenhuis/433mhzforrpi.git
-    cd 433mhzforrpi
-
-
-Compileer nu de versie die jij nodig hebt:
-
-KlikAanKlikUit
-code:
-
-    g++ -o kaku kaku.cpp -I/usr/local/include -L/usr/local/lib -lwiringPi
-
-
-Action
-code:
-
-    g++ -o action action.cpp -I/usr/local/include -L/usr/local/lib -lwiringPi
-
-
-Blokker
-code:
-
-    g++ -o blokker blokker.cpp -I/usr/local/include -L/usr/local/lib -lwiringPi
-
-
-Elro
-code:
-
-    g++ -o elro elro.cpp -I/usr/local/include -L/usr/local/lib -lwiringPi
+    ./install.sh
 
 
 Nu kun je het zojuist gecompileerde tooltje uitvoeren om je lampen te
