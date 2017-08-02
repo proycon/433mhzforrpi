@@ -119,8 +119,8 @@ int main(int argc, char **argv) {
     } else if (protocol.find("elro") != std::string::npos) {
         // msg[0] = devicetype
         msg[0] = (char) elro;
-        msg[1] = atol(argv[3]);
-        msg[2] = *argv[4];
+        msg[1] = *argv[3];
+        msg[2] = atol(argv[4]);
     } else {
         std::cerr << "Unknown protocol: " << protocol << std::endl;
         usage();
