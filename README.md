@@ -55,8 +55,6 @@ Protocol is one of:
 * elro -- Elro Flamingo and others, address configured with DIP switches
 * action
 
-
-
 Klik-aan-klik-Uit old style:
 
 ```
@@ -72,7 +70,7 @@ $ 433send 8 newkaku 123 1 on
 Elro Flamingo:
 
 ```
-$ 433send 8 elro A 2 on
+$ 433send 8 elro 2 E on
 ```
 
 To pair a new Kaku switch, send the on signal right after plugging it in.
