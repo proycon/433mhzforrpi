@@ -72,45 +72,32 @@ int send433mhz(const unsigned short PIN_OUT, deviceType devicetype, int address,
 
 
 int main(int argc, char **argv) {
-        mqd_t mqd;
-        struct mq_attr attr;
-        int ret;
-        char msg[MQ_MESSAGE_MAX_LENGTH];
-        ssize_t msg_len;
+    int ret;
+    char msg[10];
+    ssize_t msg_len;
 
-        // load wiringPi
-        if(wiringPiSetup() == -1) {
-                printf("WiringPi setup failed. Maybe you haven't installed it yet? (apt-get install wiringpi)");
-                exit(1);
-        }
-
-
-        if (argc != 2) {
-            printf("Syntax: 433mhzdaemon PIN_OUT");
+    // load wiringPi
+    if(wiringPiSetup() == -1) {
+            printf("WiringPi setup failed. Maybe you haven't installed it yet? (apt-get install wiringpi)");
             exit(1);
-        }
-        const unsigned short PIN_OUT = (unsigned short) atoi(argv[1]);
-
-        // setup pin and make it low (otherwise transmitter will block other 433 mhz transmitters like remotes)
-        pinMode(PIN_OUT, OUTPUT);
-        digitalWrite(PIN_OUT, LOW);
-
-    if (argc < 1) usage();
-    string protocol = argv[1];
+    }
 
 
     if( argc < 6 ) { // not enough arguments
         usage();
         exit(1);
     }
+    string protocol = argv[2];
 
-    if (protocol.find("kaku") != std::string::npos) {
-        if (atol(argv[2])) {
-            protocol = "newkaku";
-        } else {
-            protocol = "oldkaku";
-        }
-    } else if (protocol.find("newkaku") != std::string::npos) {
+    const unsigned short PIN_OUT = (unsigned short) atoi(argv[1]);
+    std::cerr << "PIN_OUT=" << PIN_OUT << std::endl;
+
+    // setup pin and make it low (otherwise transmitter will block other 433 mhz transmitters like remotes)
+    pinMode(PIN_OUT, OUTPUT);
+    digitalWrite(PIN_OUT, LOW);
+
+
+    if (protocol.find("newkaku") != std::string::npos) {
         msg[0] = (char) newkaku;
         msg[1] = (char) atol(argv[3]);
         msg[2] = (char) atol(argv[4]);
@@ -118,6 +105,12 @@ int main(int argc, char **argv) {
         msg[0] = (char) oldkaku;
         msg[1] = (char) (argv[3])[0];
         msg[2] = (char) atol(argv[4]);
+    } else if (protocol.find("kaku") != std::string::npos) {
+        if (atol(argv[3])) {
+            protocol = "newkaku";
+        } else {
+            protocol = "oldkaku";
+        }
     } else if (protocol.find("action") != std::string::npos) {
         // msg[0] = devicetype
         msg[0] = (char) action;
@@ -128,7 +121,12 @@ int main(int argc, char **argv) {
         msg[0] = (char) elro;
         msg[1] = atol(argv[3]);
         msg[2] = *argv[4];
+    } else {
+        std::cerr << "Unknown protocol: " << protocol << std::endl;
+        usage();
+        exit(2);
     }
+    std::cerr << "protocol=" << protocol << std::endl;
 
     string statestr = argv[5];
     msg[3] = 0;
@@ -147,11 +145,7 @@ int main(int argc, char **argv) {
         exit(3);
     }
 
-    if (msg_len > 4) {
-        send433mhz(PIN_OUT, (deviceType) msg[0], msg[1], msg[2], (deviceCommand)  msg[3], msg[4]);
-    } else {
-        std::err << "msg_len too short: " << msg_len << std::endl;
-    }
+    send433mhz(PIN_OUT, (deviceType) msg[0], msg[1], msg[2], (deviceCommand)  msg[3], msg[4]);
 
 
     return 0;
