@@ -76,7 +76,8 @@ int main(int argc, char **argv) {
                 exit(1);
         }
 
-        if (argc != 1) {
+
+        if (argc != 2) {
             printf("Syntax: 433mhzdaemon PIN_OUT");
             printf("PIN_OUT using wiringPi pin numbering scheme (15 = TxD / BCM GPIO 14, see https://projects.drogon.net/raspberry-pi/wiringpi/pins/)");
             exit(1);
