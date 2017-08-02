@@ -17,8 +17,8 @@ using namespace std;
 void usage() {
     std::cerr << "Syntax: 433mhztool $protocol $address $unit on/off" << std::endl;
     std::cerr << "Protocol: kaku (oldkaku/newkaku), elro/action" << std::endl;
-    std::cerr << "example: " << argv[0] << " for oldkaku : A 2 on" << std::endl;
-    std::cerr << "example: " << argv[0] << " for newkaku : 123 10 dim 5" << std::endl;
+    std::cerr << "example: 433mhztool oldkaku 2 on" << std::endl;
+    std::cerr << "example: 433mhztool newkaku 123 10 dim 5" << std::endl;
     exit(3);
 }
 
@@ -49,26 +49,26 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    if (programname.find("kaku") != std::string::npos) {
+    if (protocol.find("kaku") != std::string::npos) {
         if (atol(argv[1])) {
             protocol = "newkaku";
         } else {
             protocol = "oldkaku";
         }
-    } else if (programname.find("newkaku") != std::string::npos) {
+    } else if (protocol.find("newkaku") != std::string::npos) {
         msg[0] = (char) newkaku;
         msg[1] = (char) atol(argv[2]);
         msg[2] = (char) atol(argv[3]);
-    } else if (programname.find("oldkaku") != std::string::npos) {
+    } else if (protocol.find("oldkaku") != std::string::npos) {
         msg[0] = (char) oldkaku;
         msg[1] = (char) (argv[2])[0];
         msg[2] = (char) atol(argv[3]);
-    } else if (programname.find("action") != std::string::npos) {
+    } else if (protocol.find("action") != std::string::npos) {
         // msg[0] = devicetype
         msg[0] = (char) action;
         msg[1] = atol(argv[2]);
         msg[2] = *argv[3];
-    } else if (programname.find("elro") != std::string::npos) {
+    } else if (protocol.find("elro") != std::string::npos) {
         // msg[0] = devicetype
         msg[0] = (char) elro;
         msg[1] = atol(argv[2]);

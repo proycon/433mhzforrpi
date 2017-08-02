@@ -63,7 +63,7 @@ int send433mhz(const unsigned short PIN_OUT, deviceType devicetype, int address,
 
 
 
-int main() {
+int main(int argc, char **argv) {
         mqd_t mqd;
         struct mq_attr attr;
         int ret;
@@ -79,7 +79,7 @@ int main() {
         if (argc != 1) {
             printf("Syntax: 433mhzdaemon PIN_OUT");
             printf("PIN_OUT using wiringPi pin numbering scheme (15 = TxD / BCM GPIO 14, see https://projects.drogon.net/raspberry-pi/wiringpi/pins/)");
-            exit(1)
+            exit(1);
         }
         const unsigned short PIN_OUT = (unsigned short) atoi(argv[1]);
 
