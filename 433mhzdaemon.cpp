@@ -18,7 +18,7 @@
 
 using namespace std;
 
-int send433mhz(deviceType devicetype, int address, int device, deviceCommand command, int value) {
+int send433mhz(const unsigned short PIN_OUT, deviceType devicetype, int address, int device, deviceCommand command, int value) {
     switch (devicetype) {
         case newkaku:
         {
@@ -81,7 +81,7 @@ int main() {
             printf("PIN_OUT using wiringPi pin numbering scheme (15 = TxD / BCM GPIO 14, see https://projects.drogon.net/raspberry-pi/wiringpi/pins/)");
             exit(1)
         }
-        const int PIN_OUT = atoi(argv[1]);
+        const unsigned short PIN_OUT = (unsigned short) atoi(argv[1]);
 
         // setup pin and make it low (otherwise transmitter will block other 433 mhz transmitters like remotes)
         pinMode(PIN_OUT, OUTPUT);
@@ -111,7 +111,7 @@ int main() {
                     {
                         msg[MQ_MESSAGE_MAX_LENGTH-1] = '\0';
                         printf(" Successfully received %d bytes, ", (int)msg_len);
-                        if (msg_len > 4) send433mhz((deviceType) msg[0], msg[1], msg[2], (deviceCommand)  msg[3], msg[4]);
+                        if (msg_len > 4) send433mhz(PIN_OUT, (deviceType) msg[0], msg[1], msg[2], (deviceCommand)  msg[3], msg[4]);
                     }
                 }
 
